@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/health").permitAll()
                 .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh").permitAll()
                 .requestMatchers("/auth/logout").authenticated()
+                .requestMatchers("/api/videos/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()
         );
