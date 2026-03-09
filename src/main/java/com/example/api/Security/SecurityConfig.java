@@ -20,12 +20,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/api/v3/api-docs/**", "/api/swagger-ui/**", "/api/swagger-ui.html");
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -41,7 +49,17 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/health", "/error", "/favicon.ico").permitAll()
+                .requestMatchers(
+                        "/",
+                        "/health",
+                        "/error",
+                        "/favicon.ico",
+                        "/api",
+                        "/api/",
+                        "/api/health",
+                        "/api/error",
+                        "/api/favicon.ico"
+                ).permitAll()
 
                 .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh").permitAll()
                 .requestMatchers(
@@ -50,6 +68,11 @@ public class SecurityConfig {
                         "/v3/api-docs",
                         "/v3/api-docs/**",
                         "/v3/api-docs.yaml",
+                        "/api/swagger-ui/**",
+                        "/api/swagger-ui.html",
+                        "/api/v3/api-docs",
+                        "/api/v3/api-docs/**",
+                        "/api/v3/api-docs.yaml",
                         "/swagger-resources/**",
                         "/webjars/**"
                 ).permitAll()
