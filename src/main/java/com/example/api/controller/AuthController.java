@@ -80,4 +80,24 @@ public class AuthController {
         authService.logout(req.refreshToken());
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me() {
+        var auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (auth == null || auth.getPrincipal() == null) {
+            return ResponseEntity.status(401).body(java.util.Map.of(
+                    "authenticated", false,
+                    "message", "no authentication"
+            ));
+        }
+
+        return ResponseEntity.ok(java.util.Map.of(
+                "authenticated", true,
+                "userId", String.valueOf(auth.getPrincipal()),
+                "principalClass", auth.getPrincipal().getClass().getName()
+        ));
+    }
 }
