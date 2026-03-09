@@ -100,6 +100,7 @@ public class SecurityConfig {
                 "http://127.0.0.1:3000",
                 "http://api.homecam.r-e.kr",
                 "http://homecam.r-e.kr",
+                "https://homecam.r-e.kr",
                 "https://api.homecam.r-e.kr"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
