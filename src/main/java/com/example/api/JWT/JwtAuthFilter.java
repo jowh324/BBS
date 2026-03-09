@@ -1,7 +1,9 @@
 package com.example.api.JWT;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,19 +22,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws ServletException, IOException {
+
         System.out.println("JwtAuthFilter called: " + req.getMethod() + " " + req.getRequestURI());
         System.out.println("Authorization = " + req.getHeader("Authorization"));
 
         String auth = req.getHeader("Authorization");
-        System.out.println("Authorization = " + auth);
 
         if (auth != null && auth.startsWith("Bearer ")) {
             String token = auth.substring(7);
-            System.out.println("token = " + token);
 
             try {
                 String userId = jwtProvider.validateAndGetSubject(token);
-                System.out.println("userId from token = " + userId);
+                System.out.println("userId = " + userId);
 
                 var authentication =
                         new UsernamePasswordAuthenticationToken(userId, null, List.of());

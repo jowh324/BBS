@@ -20,20 +20,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/api/v3/api-docs/**", "/api/swagger-ui/**", "/api/swagger-ui.html");
-    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -49,12 +41,22 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**").permitAll()
+                .requestMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**"
+                ).permitAll()
+
                 .requestMatchers("/", "/health").permitAll()
+
                 .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh").permitAll()
                 .requestMatchers("/auth/logout", "/auth/me").authenticated()
+
                 .requestMatchers("/api/videos/**").permitAll()
+
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                 .anyRequest().authenticated()
         );
 

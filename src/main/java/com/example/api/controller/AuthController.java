@@ -15,6 +15,8 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -96,8 +98,7 @@ public class AuthController {
 
         return ResponseEntity.ok(java.util.Map.of(
                 "authenticated", true,
-                "userId", String.valueOf(auth.getPrincipal()),
-                "principalClass", auth.getPrincipal().getClass().getName()
+                "userId", String.valueOf(auth.getPrincipal())
         ));
     }
 }
