@@ -83,6 +83,27 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "로그인 상태 확인",
+            description = "access token이 유효한지 확인합니다. 유효하면 200, 유효하지 않거나 토큰이 없으면 401을 반환합니다.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "토큰 유효"),
+            @ApiResponse(responseCode = "401", description = "토큰이 없거나 유효하지 않음")
+    })
+    @GetMapping("/checklogin")
+    public ResponseEntity<?> checkLogin() {
+        var auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        return ResponseEntity.ok(java.util.Map.of(
+                "authenticated", true,
+                "userId", String.valueOf(auth.getPrincipal())
+        ));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<?> me() {
         var auth = org.springframework.security.core.context.SecurityContextHolder
