@@ -43,6 +43,8 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j'
     implementation platform("software.amazon.awssdk:bom:2.25.67")
     implementation "software.amazon.awssdk:s3"
+    implementation 'software.amazon.awssdk:kinesisvideo'
+    implementation "software.amazon.awssdk:kinesisvideoarchivedmedia"
 }
 
 tasks.named('test') {

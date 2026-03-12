@@ -25,3 +25,7 @@ app:
     prefix: videos
     presignMinutes: 10
 
+aws:
+  region: ap-northeast-2
+kinesis:
+  stream-name: BBS
