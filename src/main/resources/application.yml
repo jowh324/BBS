@@ -1,7 +1,7 @@
 
 jwt:
   secret: "this-is-a-very-long-secret-key-at-least-32-bytes!!"
-  access-minutes: 30
+  access-minutes: 360
   refresh-days: 14
 spring:
   application:
