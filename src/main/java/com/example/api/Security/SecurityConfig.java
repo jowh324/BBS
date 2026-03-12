@@ -1,6 +1,7 @@
 package com.example.api.Security;
 
 import com.example.api.JWT.JwtAuthFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +41,14 @@ public class SecurityConfig {
         http.formLogin(f -> f.disable());
         http.cors(Customizer.withDefaults());
 
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\":\"Unauthorized\"}");
+                })
+        );
+
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                         "/swagger-ui.html",
@@ -51,7 +60,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/health").permitAll()
 
                 .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh").permitAll()
-                .requestMatchers("/auth/logout", "/auth/me").authenticated()
+                .requestMatchers("/auth/logout", "/auth/me", "/auth/checklogin").authenticated()
 
                 .requestMatchers("/api/videos/**").permitAll()
 
