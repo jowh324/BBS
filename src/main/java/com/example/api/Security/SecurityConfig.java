@@ -67,7 +67,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/stream/live").permitAll()
                 .anyRequest().authenticated()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/api/stream/live").permitAll()
                 .anyRequest().authenticated()
         );
 
