@@ -17,6 +17,7 @@ public class StreamController {
 
     @GetMapping("/api/stream/live")
     public ResponseEntity<Map<String, String>> getLiveStream() {
+        System.out.println("LIVE endpoint HIT");
         String url = kinesisStreamService.issueLiveHlsUrl();
         return ResponseEntity.ok(Map.of("streamUrl", url));
     }
