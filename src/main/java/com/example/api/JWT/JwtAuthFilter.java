@@ -23,28 +23,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws ServletException, IOException {
 
-        System.out.println("JwtAuthFilter called: " + req.getMethod() + " " + req.getRequestURI());
-        System.out.println("Authorization = " + req.getHeader("Authorization"));
-
         String auth = req.getHeader("Authorization");
+        System.out.println("Authorization = " + auth);
 
         if (auth != null && auth.startsWith("Bearer ")) {
             String token = auth.substring(7);
-
             try {
                 String userId = jwtProvider.validateAndGetSubject(token);
-                System.out.println("userId = " + userId);
+                System.out.println("JWT OK userId = " + userId);
 
                 var authentication =
                         new UsernamePasswordAuthenticationToken(userId, null, List.of());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
-                SecurityContextHolder.clearContext();
+                System.out.println("JWT FAIL");
                 e.printStackTrace();
             }
         }
-
         chain.doFilter(req, res);
     }
 }
