@@ -58,16 +58,13 @@ public class SecurityConfig {
                 ).permitAll()
 
                 .requestMatchers("/", "/health").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh").permitAll()
                 .requestMatchers("/auth/logout", "/auth/me", "/auth/checklogin").authenticated()
 
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                 .requestMatchers("/api/videos/**").permitAll()
                 .requestMatchers("/api/stream/live").permitAll()
-
-                .requestMatchers("/auth/**").permitAll()
 
                 .anyRequest().authenticated()
         );
