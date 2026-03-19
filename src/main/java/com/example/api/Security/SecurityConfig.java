@@ -62,13 +62,13 @@ public class SecurityConfig {
                 .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh").permitAll()
                 .requestMatchers("/auth/logout", "/auth/me", "/auth/checklogin").authenticated()
 
-                .requestMatchers("/api/videos/**").permitAll()
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/api/stream/live").permitAll()
-                .anyRequest().authenticated()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/auth/**").permitAll()
+
+                .requestMatchers("/api/videos/**").permitAll()
                 .requestMatchers("/api/stream/live").permitAll()
+
+                .requestMatchers("/auth/**").permitAll()
+
                 .anyRequest().authenticated()
         );
 
