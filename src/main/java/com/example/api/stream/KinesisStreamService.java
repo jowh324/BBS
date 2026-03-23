@@ -54,7 +54,7 @@ public class KinesisStreamService {
                                 GetHlsStreamingSessionUrlRequest.builder()
                                         .streamName(streamName)
                                         .playbackMode(HLSPlaybackMode.LIVE)
-                                        .expires(300)
+                                        .expires(3600)
                                         .build()
                         );
 
