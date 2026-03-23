@@ -14,6 +14,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,10 +30,18 @@ public class VideoService {
     @Value("${app.s3.prefix}") private String prefix;
     @Value("${app.s3.presignMinutes:10}") private long presignMinutes;
 
+    private static final DateTimeFormatter TITLE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneOffset.UTC);
+
     public VideoDTOs.InitResponse initUpload(String userId, VideoDTOs.InitRequest req) {
         String id = UUID.randomUUID().toString();
         String ext = (req.fileExt() == null || req.fileExt().isBlank()) ? "mp4" : req.fileExt().trim();
         String key = "%s/%s/%s.%s".formatted(prefix, userId, id, ext);
+        Instant now = Instant.now();
+
+        String title = (req.title() == null || req.title().isBlank())
+                ? TITLE_FORMATTER.format(now)
+                : req.title().trim();
 
         // DB 저장 (INIT)
         VideoObject v = new VideoObject();
@@ -39,8 +50,9 @@ public class VideoService {
         v.setS3Key(key);
         v.setContentType(req.contentType());
         v.setStatus("INIT");
-        v.setCreatedAt(Instant.now());
-        v.setUpdatedAt(Instant.now());
+        v.setTitle(title);
+        v.setCreatedAt(now);
+        v.setUpdatedAt(now);
         videoRepository.save(v);
 
         // Presigned PUT 생성
@@ -96,5 +108,17 @@ public class VideoService {
         String downloadUrl = presigner.presignGetObject(presignReq).url().toString();
 
         return new VideoDTOs.DownloadUrlResponse(v.getId(), v.getS3Key(), downloadUrl, sig.toSeconds());
+    }
+
+    public List<VideoDTOs.VideoListItem> listVideos(String userId) {
+        return videoRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(v -> new VideoDTOs.VideoListItem(
+                        v.getId(),
+                        v.getTitle(),
+                        v.getStatus(),
+                        v.getSizeBytes(),
+                        v.getCreatedAt()
+                ))
+                .toList();
     }
 }

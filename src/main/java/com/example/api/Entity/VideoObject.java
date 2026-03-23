@@ -31,6 +31,9 @@ public class VideoObject {
 
     private Long sizeBytes;
 
+    @Column(length = 200)
+    private String title;
+
     @Column(nullable = false)
     private Instant createdAt;
 

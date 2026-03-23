@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/videos")
@@ -17,6 +19,12 @@ public class VideoController {
 
     private String userId() {
         return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    // App: 영상 목록 조회 (업로드 시각 내림차순)
+    @GetMapping
+    public ResponseEntity<List<VideoDTOs.VideoListItem>> list() {
+        return ResponseEntity.ok(videoService.listVideos(userId()));
     }
 
     // Jetson: presigned PUT 발급
