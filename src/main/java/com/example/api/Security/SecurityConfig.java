@@ -82,7 +82,8 @@ public class SecurityConfig {
                 "http://homecam.r-e.kr",
                 "https://homecam.r-e.kr",
                 "https://api.homecam.r-e.kr",
-                "http://43.201.180.90:8080"
+                "http://localhost:5500",
+                "http://127.0.0.1:5500"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
