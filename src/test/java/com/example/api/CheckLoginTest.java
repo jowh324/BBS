@@ -1,6 +1,9 @@
 package com.example.api;
 
+import com.example.api.JWT.JwtAuthFilter;
 import com.example.api.JWT.JwtProvider;
+import com.example.api.Security.JwtAccessDeniedHandler;
+import com.example.api.Security.JwtAuthenticationEntryPoint;
 import com.example.api.Security.SecurityConfig;
 import com.example.api.Service.AuthService;
 import com.example.api.controller.AuthController;
@@ -20,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtAuthFilter.class, JwtAuthenticationEntryPoint.class, JwtAccessDeniedHandler.class})
 class CheckLoginTest {
 
     @Autowired

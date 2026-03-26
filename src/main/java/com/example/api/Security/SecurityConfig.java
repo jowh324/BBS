@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh").permitAll()
-                .requestMatchers("/auth/logout", "/auth/me", "/auth/checklogin").authenticated()
+                .requestMatchers("/auth/logout", "/auth/me", "/auth/me/password", "/auth/checklogin").authenticated()
 
                 .requestMatchers("/api/videos/**").permitAll()
                 .requestMatchers("/api/stream/live").permitAll()

@@ -104,6 +104,28 @@ public class AuthService {
         return new AuthResponse(rt.getUserId(), newAccess, newRefresh);
     }
 
+    public UserInfoResponse getMe(String userId) {
+        User u = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return new UserInfoResponse(u.getId(), u.getName(), u.getEmail());
+    }
+
+    @Transactional
+    public void changePassword(String userId, ChangePasswordRequest req) {
+        if (!req.newPassword().equals(req.newPasswordConfirm())) {
+            throw new IllegalArgumentException("새 비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+        }
+
+        User u = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (!encoder.matches(req.currentPassword(), u.getPasswordHash())) {
+            throw new IllegalArgumentException("현재 비밀번호가 올바르지 않습니다.");
+        }
+
+        u.setPasswordHash(encoder.encode(req.newPassword()));
+    }
+
     @Transactional
     public void logout(String refreshToken) {
         if (refreshToken == null) {

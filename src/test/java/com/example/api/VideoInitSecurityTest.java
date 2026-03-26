@@ -2,7 +2,10 @@ package com.example.api;
 
 import com.example.api.DTO.VideoDTOs;
 import com.example.api.Service.VideoService;
+import com.example.api.JWT.JwtAuthFilter;
 import com.example.api.JWT.JwtProvider;
+import com.example.api.Security.JwtAccessDeniedHandler;
+import com.example.api.Security.JwtAuthenticationEntryPoint;
 import com.example.api.Security.SecurityConfig;
 import com.example.api.controller.VideoController;
 import org.junit.jupiter.api.Test;
@@ -24,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(VideoController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtAuthFilter.class, JwtAuthenticationEntryPoint.class, JwtAccessDeniedHandler.class})
 class VideoInitSecurityTest {
 
     @Autowired

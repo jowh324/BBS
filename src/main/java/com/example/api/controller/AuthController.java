@@ -38,15 +38,29 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<?> me() {
-        var auth = org.springframework.security.core.context.SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
+    @GetMapping("/checklogin")
+    public ResponseEntity<?> checkLogin() {
         return ResponseEntity.ok(java.util.Map.of(
                 "authenticated", true,
-                "userId", String.valueOf(auth.getPrincipal())
+                "userId", currentUserId()
         ));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserInfoResponse> me() {
+        return ResponseEntity.ok(authService.getMe(currentUserId()));
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordRequest req) {
+        authService.changePassword(currentUserId(), req);
+        return ResponseEntity.ok().build();
+    }
+
+    private String currentUserId() {
+        return (String) org.springframework.security.core.context.SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 }
