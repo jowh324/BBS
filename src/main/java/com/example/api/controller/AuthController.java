@@ -5,6 +5,7 @@ import com.example.api.Service.AuthService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -33,9 +34,16 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody Map<String,String> body){
-        authService.logout(body.get("refreshToken"));
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> logout(Authentication authentication){
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(java.util.Map.of("message", "인증이 필요합니다."));
+        }
+
+        String userId = (String) authentication.getPrincipal();
+        authService.logoutByAccessToken(userId);
+
+        return ResponseEntity.ok(java.util.Map.of("message", "로그아웃 완료"));
     }
 
     @GetMapping("/checklogin")

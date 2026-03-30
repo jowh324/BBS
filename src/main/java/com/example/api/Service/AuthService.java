@@ -127,19 +127,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String refreshToken) {
-        if (refreshToken == null) {
-            throw new IllegalArgumentException("refreshToken 값이 필요합니다.");
-        }
-
-        String token = refreshToken.trim();
-        if (token.isEmpty()) {
-            throw new IllegalArgumentException("refreshToken 값이 비어 있습니다.");
-        }
-
-        RefreshToken rt = rtRepo.findByTokenAndRevokedFalse(token)
-                .orElseThrow(() -> new IllegalArgumentException("이미 로그아웃되었거나 유효하지 않은 리프레시 토큰입니다."));
-
-        rt.setRevoked(true);
+    public void logoutByAccessToken(String userId){
+        rtRepo.findAllByUserIdAndRevokedFalse(userId)
+                .forEach(rt -> rt.setRevoked(true));
     }
 }
