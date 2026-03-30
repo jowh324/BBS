@@ -25,16 +25,16 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(req));
     }
 
+
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody(required = false) Map<String, String> body) {
-        String refreshToken = body == null ? null : body.get("refreshToken");
-        return ResponseEntity.ok(authService.refresh(refreshToken));
+    public ResponseEntity<AuthResponse> refresh(@RequestBody @Valid RefreshRequest req){
+
+        return ResponseEntity.ok(authService.refresh(req.refreshToken()));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody(required = false) Map<String, String> body) {
-        String refreshToken = body == null ? null : body.get("refreshToken");
-        authService.logout(refreshToken);
+    public ResponseEntity<Void> logout(@RequestBody Map<String,String> body){
+        authService.logout(body.get("refreshToken"));
         return ResponseEntity.ok().build();
     }
 
