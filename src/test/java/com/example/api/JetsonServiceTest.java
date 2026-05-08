@@ -67,6 +67,19 @@ class JetsonServiceTest {
     }
 
     @Test
+    void futureHeartbeatIsDisconnected() {
+        JetsonDeviceState state = new JetsonDeviceState();
+        state.setUserId("default");
+        state.setHeartbeatStatus(JetsonHeartbeatStatus.ON);
+        state.setLastHeartbeatAt(Instant.now().plusSeconds(60));
+        when(repository.findById("default")).thenReturn(Optional.of(state));
+
+        JetsonDTOs.MobileStatusResponse response = jetsonService.getMobileStatus("ignored-user");
+
+        assertThat(response.status()).isEqualTo(JetsonMobileStatus.DISCONNECTED);
+    }
+
+    @Test
     void mobileStatusMapsStartingAndRunningToOn() {
         JetsonDeviceState state = new JetsonDeviceState();
         state.setUserId("default");

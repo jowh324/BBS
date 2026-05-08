@@ -21,6 +21,7 @@ public class JetsonService {
     private static final String DEFAULT_DEVICE_ID = "default";
     private static final long DEFAULT_DISCONNECT_SECONDS = 30;
     private static final long MAX_DISCONNECT_SECONDS = 300;
+    private static final long ALLOWED_CLOCK_SKEW_SECONDS = 5;
 
     private final JetsonDeviceStateRepository jetsonDeviceStateRepository;
 
@@ -107,9 +108,18 @@ public class JetsonService {
     }
 
     private JetsonMobileStatus resolveMobileStatus(JetsonDeviceState state) {
+        Instant lastHeartbeatAt = state.getLastHeartbeatAt();
+        if (lastHeartbeatAt == null) {
+            return JetsonMobileStatus.DISCONNECTED;
+        }
+
+        Instant now = Instant.now();
+        if (lastHeartbeatAt.isAfter(now.plusSeconds(ALLOWED_CLOCK_SKEW_SECONDS))) {
+            return JetsonMobileStatus.DISCONNECTED;
+        }
+
         long timeoutSeconds = effectiveDisconnectSeconds();
-        if (state.getLastHeartbeatAt() == null ||
-                Duration.between(state.getLastHeartbeatAt(), Instant.now()).getSeconds() >= timeoutSeconds) {
+        if (Duration.between(lastHeartbeatAt, now).getSeconds() >= timeoutSeconds) {
             return JetsonMobileStatus.DISCONNECTED;
         }
 
