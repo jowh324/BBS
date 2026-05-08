@@ -18,6 +18,7 @@ public class JetsonDTOs {
     }
 
     public record MobileStatusResponse(
+            String userId,
             JetsonMobileStatus status,
             JetsonHeartbeatStatus heartbeatStatus,
             JetsonPowerTarget targetPower,
@@ -28,6 +29,7 @@ public class JetsonDTOs {
     }
 
     public record CommandResponse(
+            String userId,
             JetsonPowerTarget targetPower,
             boolean shouldRun,
             Instant commandUpdatedAt,

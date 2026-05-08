@@ -25,9 +25,11 @@ public class JetsonService {
 
     @Transactional(readOnly = true)
     public JetsonDTOs.MobileStatusResponse getMobileStatus(String userId) {
-        return jetsonDeviceStateRepository.findById(userId)
+        String normalizedUserId = normalizeUserId(userId);
+        return jetsonDeviceStateRepository.findById(normalizedUserId)
                 .map(this::toMobileStatus)
                 .orElseGet(() -> new JetsonDTOs.MobileStatusResponse(
+                        normalizedUserId,
                         JetsonMobileStatus.DISCONNECTED,
                         null,
                         JetsonPowerTarget.OFF,
@@ -39,7 +41,7 @@ public class JetsonService {
 
     @Transactional
     public JetsonDTOs.MobileStatusResponse requestPower(String userId, JetsonPowerTarget power) {
-        JetsonDeviceState state = findOrCreate(userId);
+        JetsonDeviceState state = findOrCreate(normalizeUserId(userId));
         state.setTargetPower(power);
         state.setLastCommandAt(Instant.now());
         jetsonDeviceStateRepository.save(state);
@@ -48,10 +50,12 @@ public class JetsonService {
 
     @Transactional(readOnly = true)
     public JetsonDTOs.CommandResponse getCommand(String userId) {
-        JetsonDeviceState state = jetsonDeviceStateRepository.findById(userId)
-                .orElseGet(() -> defaultState(userId));
+        String normalizedUserId = normalizeUserId(userId);
+        JetsonDeviceState state = jetsonDeviceStateRepository.findById(normalizedUserId)
+                .orElseGet(() -> defaultState(normalizedUserId));
 
         return new JetsonDTOs.CommandResponse(
+                normalizedUserId,
                 state.getTargetPower(),
                 state.getTargetPower() == JetsonPowerTarget.ON,
                 state.getLastCommandAt(),
@@ -61,13 +65,15 @@ public class JetsonService {
 
     @Transactional
     public JetsonDTOs.CommandResponse reportHeartbeat(String userId, JetsonDTOs.HeartbeatRequest req) {
-        JetsonDeviceState state = findOrCreate(userId);
+        String normalizedUserId = normalizeUserId(userId);
+        JetsonDeviceState state = findOrCreate(normalizedUserId);
         state.setHeartbeatStatus(req.state());
         state.setMessage(trimMessage(req.message()));
         state.setLastHeartbeatAt(Instant.now());
         jetsonDeviceStateRepository.save(state);
 
         return new JetsonDTOs.CommandResponse(
+                normalizedUserId,
                 state.getTargetPower(),
                 state.getTargetPower() == JetsonPowerTarget.ON,
                 state.getLastCommandAt(),
@@ -89,6 +95,7 @@ public class JetsonService {
 
     private JetsonDTOs.MobileStatusResponse toMobileStatus(JetsonDeviceState state) {
         return new JetsonDTOs.MobileStatusResponse(
+                state.getUserId(),
                 resolveMobileStatus(state),
                 state.getHeartbeatStatus(),
                 state.getTargetPower(),
@@ -114,6 +121,13 @@ public class JetsonService {
             return JetsonMobileStatus.ON;
         }
         return JetsonMobileStatus.OFF;
+    }
+
+    private String normalizeUserId(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("userid is required");
+        }
+        return userId.trim();
     }
 
     private String trimMessage(String message) {
