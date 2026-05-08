@@ -18,6 +18,8 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class JetsonService {
 
+    private static final String DEFAULT_DEVICE_ID = "default";
+
     private final JetsonDeviceStateRepository jetsonDeviceStateRepository;
 
     @Value("${app.jetson.disconnect-seconds:30}")
@@ -25,11 +27,10 @@ public class JetsonService {
 
     @Transactional(readOnly = true)
     public JetsonDTOs.MobileStatusResponse getMobileStatus(String userId) {
-        String normalizedUserId = normalizeUserId(userId);
-        return jetsonDeviceStateRepository.findById(normalizedUserId)
+        return jetsonDeviceStateRepository.findById(DEFAULT_DEVICE_ID)
                 .map(this::toMobileStatus)
                 .orElseGet(() -> new JetsonDTOs.MobileStatusResponse(
-                        normalizedUserId,
+                        DEFAULT_DEVICE_ID,
                         JetsonMobileStatus.DISCONNECTED,
                         null,
                         JetsonPowerTarget.OFF,
@@ -41,7 +42,7 @@ public class JetsonService {
 
     @Transactional
     public JetsonDTOs.MobileStatusResponse requestPower(String userId, JetsonPowerTarget power) {
-        JetsonDeviceState state = findOrCreate(normalizeUserId(userId));
+        JetsonDeviceState state = findOrCreate();
         state.setTargetPower(power);
         state.setLastCommandAt(Instant.now());
         jetsonDeviceStateRepository.save(state);
@@ -50,12 +51,11 @@ public class JetsonService {
 
     @Transactional(readOnly = true)
     public JetsonDTOs.CommandResponse getCommand(String userId) {
-        String normalizedUserId = normalizeUserId(userId);
-        JetsonDeviceState state = jetsonDeviceStateRepository.findById(normalizedUserId)
-                .orElseGet(() -> defaultState(normalizedUserId));
+        JetsonDeviceState state = jetsonDeviceStateRepository.findById(DEFAULT_DEVICE_ID)
+                .orElseGet(this::defaultState);
 
         return new JetsonDTOs.CommandResponse(
-                normalizedUserId,
+                DEFAULT_DEVICE_ID,
                 state.getTargetPower(),
                 state.getTargetPower() == JetsonPowerTarget.ON,
                 state.getLastCommandAt(),
@@ -65,15 +65,14 @@ public class JetsonService {
 
     @Transactional
     public JetsonDTOs.CommandResponse reportHeartbeat(String userId, JetsonDTOs.HeartbeatRequest req) {
-        String normalizedUserId = normalizeUserId(userId);
-        JetsonDeviceState state = findOrCreate(normalizedUserId);
+        JetsonDeviceState state = findOrCreate();
         state.setHeartbeatStatus(req.state());
         state.setMessage(trimMessage(req.message()));
         state.setLastHeartbeatAt(Instant.now());
         jetsonDeviceStateRepository.save(state);
 
         return new JetsonDTOs.CommandResponse(
-                normalizedUserId,
+                DEFAULT_DEVICE_ID,
                 state.getTargetPower(),
                 state.getTargetPower() == JetsonPowerTarget.ON,
                 state.getLastCommandAt(),
@@ -81,14 +80,14 @@ public class JetsonService {
         );
     }
 
-    private JetsonDeviceState findOrCreate(String userId) {
-        return jetsonDeviceStateRepository.findById(userId)
-                .orElseGet(() -> jetsonDeviceStateRepository.save(defaultState(userId)));
+    private JetsonDeviceState findOrCreate() {
+        return jetsonDeviceStateRepository.findById(DEFAULT_DEVICE_ID)
+                .orElseGet(() -> jetsonDeviceStateRepository.save(defaultState()));
     }
 
-    private JetsonDeviceState defaultState(String userId) {
+    private JetsonDeviceState defaultState() {
         JetsonDeviceState state = new JetsonDeviceState();
-        state.setUserId(userId);
+        state.setUserId(DEFAULT_DEVICE_ID);
         state.setTargetPower(JetsonPowerTarget.OFF);
         return state;
     }
@@ -121,13 +120,6 @@ public class JetsonService {
             return JetsonMobileStatus.ON;
         }
         return JetsonMobileStatus.OFF;
-    }
-
-    private String normalizeUserId(String userId) {
-        if (userId == null || userId.isBlank()) {
-            throw new IllegalArgumentException("userid is required");
-        }
-        return userId.trim();
     }
 
     private String trimMessage(String message) {

@@ -38,13 +38,14 @@ class JetsonServiceTest {
     @Test
     void mobileStatusIsDisconnectedWhenHeartbeatIsStale() {
         JetsonDeviceState state = new JetsonDeviceState();
-        state.setUserId("user-1");
+        state.setUserId("default");
         state.setHeartbeatStatus(JetsonHeartbeatStatus.ON);
         state.setLastHeartbeatAt(Instant.now().minusSeconds(31));
-        when(repository.findById("user-1")).thenReturn(Optional.of(state));
+        when(repository.findById("default")).thenReturn(Optional.of(state));
 
-        JetsonDTOs.MobileStatusResponse response = jetsonService.getMobileStatus("user-1");
+        JetsonDTOs.MobileStatusResponse response = jetsonService.getMobileStatus("ignored-user");
 
+        assertThat(response.userId()).isEqualTo("default");
         assertThat(response.status()).isEqualTo(JetsonMobileStatus.DISCONNECTED);
         assertThat(response.heartbeatStatus()).isEqualTo(JetsonHeartbeatStatus.ON);
     }
@@ -52,12 +53,12 @@ class JetsonServiceTest {
     @Test
     void mobileStatusMapsStartingAndRunningToOn() {
         JetsonDeviceState state = new JetsonDeviceState();
-        state.setUserId("user-1");
+        state.setUserId("default");
         state.setHeartbeatStatus(JetsonHeartbeatStatus.STARTING);
         state.setLastHeartbeatAt(Instant.now());
-        when(repository.findById("user-1")).thenReturn(Optional.of(state));
+        when(repository.findById("default")).thenReturn(Optional.of(state));
 
-        JetsonDTOs.MobileStatusResponse response = jetsonService.getMobileStatus("user-1");
+        JetsonDTOs.MobileStatusResponse response = jetsonService.getMobileStatus("ignored-user");
 
         assertThat(response.status()).isEqualTo(JetsonMobileStatus.ON);
     }
@@ -65,11 +66,12 @@ class JetsonServiceTest {
     @Test
     void requestPowerStoresTargetPower() {
         JetsonDeviceState state = new JetsonDeviceState();
-        state.setUserId("user-1");
-        when(repository.findById("user-1")).thenReturn(Optional.of(state));
+        state.setUserId("default");
+        when(repository.findById("default")).thenReturn(Optional.of(state));
 
-        JetsonDTOs.MobileStatusResponse response = jetsonService.requestPower("user-1", JetsonPowerTarget.ON);
+        JetsonDTOs.MobileStatusResponse response = jetsonService.requestPower("ignored-user", JetsonPowerTarget.ON);
 
+        assertThat(response.userId()).isEqualTo("default");
         assertThat(state.getTargetPower()).isEqualTo(JetsonPowerTarget.ON);
         assertThat(state.getLastCommandAt()).isNotNull();
         assertThat(response.targetPower()).isEqualTo(JetsonPowerTarget.ON);
@@ -78,16 +80,17 @@ class JetsonServiceTest {
     @Test
     void heartbeatStoresStateWithUserIdOnly() {
         JetsonDeviceState state = new JetsonDeviceState();
-        state.setUserId("user-1");
+        state.setUserId("default");
         state.setTargetPower(JetsonPowerTarget.ON);
-        when(repository.findById("user-1")).thenReturn(Optional.of(state));
+        when(repository.findById("default")).thenReturn(Optional.of(state));
         when(repository.save(any(JetsonDeviceState.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         JetsonDTOs.CommandResponse response = jetsonService.reportHeartbeat(
-                "user-1",
+                "ignored-user",
                 new JetsonDTOs.HeartbeatRequest(JetsonHeartbeatStatus.RUNNING, "ok")
         );
 
+        assertThat(response.userId()).isEqualTo("default");
         assertThat(state.getHeartbeatStatus()).isEqualTo(JetsonHeartbeatStatus.RUNNING);
         assertThat(state.getLastHeartbeatAt()).isNotNull();
         assertThat(response.shouldRun()).isTrue();
