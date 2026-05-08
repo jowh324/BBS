@@ -40,7 +40,7 @@ class JetsonServiceTest {
         JetsonDeviceState state = new JetsonDeviceState();
         state.setUserId("default");
         state.setHeartbeatStatus(JetsonHeartbeatStatus.ON);
-        state.setLastHeartbeatAt(Instant.now().minusSeconds(31));
+        state.setLastHeartbeatAt(Instant.now().minusSeconds(30));
         when(repository.findById("default")).thenReturn(Optional.of(state));
 
         JetsonDTOs.MobileStatusResponse response = jetsonService.getMobileStatus("ignored-user");
@@ -48,6 +48,22 @@ class JetsonServiceTest {
         assertThat(response.userId()).isEqualTo("default");
         assertThat(response.status()).isEqualTo(JetsonMobileStatus.DISCONNECTED);
         assertThat(response.heartbeatStatus()).isEqualTo(JetsonHeartbeatStatus.ON);
+    }
+
+    @Test
+    void oversizedDisconnectSecondsFallsBackToDefaultTimeout() {
+        ReflectionTestUtils.setField(jetsonService, "disconnectSeconds", Long.MAX_VALUE);
+
+        JetsonDeviceState state = new JetsonDeviceState();
+        state.setUserId("default");
+        state.setHeartbeatStatus(JetsonHeartbeatStatus.OFF);
+        state.setLastHeartbeatAt(Instant.now().minusSeconds(30));
+        when(repository.findById("default")).thenReturn(Optional.of(state));
+
+        JetsonDTOs.MobileStatusResponse response = jetsonService.getMobileStatus("ignored-user");
+
+        assertThat(response.status()).isEqualTo(JetsonMobileStatus.DISCONNECTED);
+        assertThat(response.disconnectedAfterSeconds()).isEqualTo(30);
     }
 
     @Test

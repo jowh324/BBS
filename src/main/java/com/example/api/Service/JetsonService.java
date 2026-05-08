@@ -19,6 +19,8 @@ import java.time.Instant;
 public class JetsonService {
 
     private static final String DEFAULT_DEVICE_ID = "default";
+    private static final long DEFAULT_DISCONNECT_SECONDS = 30;
+    private static final long MAX_DISCONNECT_SECONDS = 300;
 
     private final JetsonDeviceStateRepository jetsonDeviceStateRepository;
 
@@ -36,7 +38,7 @@ public class JetsonService {
                         JetsonPowerTarget.OFF,
                         null,
                         null,
-                        disconnectSeconds
+                        effectiveDisconnectSeconds()
                 ));
     }
 
@@ -100,13 +102,14 @@ public class JetsonService {
                 state.getTargetPower(),
                 state.getLastHeartbeatAt(),
                 state.getLastCommandAt(),
-                disconnectSeconds
+                effectiveDisconnectSeconds()
         );
     }
 
     private JetsonMobileStatus resolveMobileStatus(JetsonDeviceState state) {
+        long timeoutSeconds = effectiveDisconnectSeconds();
         if (state.getLastHeartbeatAt() == null ||
-                Duration.between(state.getLastHeartbeatAt(), Instant.now()).getSeconds() > disconnectSeconds) {
+                Duration.between(state.getLastHeartbeatAt(), Instant.now()).getSeconds() >= timeoutSeconds) {
             return JetsonMobileStatus.DISCONNECTED;
         }
 
@@ -120,6 +123,13 @@ public class JetsonService {
             return JetsonMobileStatus.ON;
         }
         return JetsonMobileStatus.OFF;
+    }
+
+    private long effectiveDisconnectSeconds() {
+        if (disconnectSeconds <= 0 || disconnectSeconds > MAX_DISCONNECT_SECONDS) {
+            return DEFAULT_DISCONNECT_SECONDS;
+        }
+        return disconnectSeconds;
     }
 
     private String trimMessage(String message) {
