@@ -8,12 +8,9 @@ import com.example.api.jetson.JetsonMobileStatus;
 import com.example.api.jetson.JetsonPowerTarget;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -22,9 +19,6 @@ import java.time.Instant;
 public class JetsonService {
 
     private final JetsonDeviceStateRepository jetsonDeviceStateRepository;
-
-    @Value("${app.jetson.token:change-me}")
-    private String jetsonToken;
 
     @Value("${app.jetson.disconnect-seconds:30}")
     private long disconnectSeconds;
@@ -53,8 +47,7 @@ public class JetsonService {
     }
 
     @Transactional(readOnly = true)
-    public JetsonDTOs.CommandResponse getCommand(String userId, String token) {
-        validateToken(token);
+    public JetsonDTOs.CommandResponse getCommand(String userId) {
         JetsonDeviceState state = jetsonDeviceStateRepository.findById(userId)
                 .orElseGet(() -> defaultState(userId));
 
@@ -67,8 +60,7 @@ public class JetsonService {
     }
 
     @Transactional
-    public JetsonDTOs.CommandResponse reportHeartbeat(String userId, String token, JetsonDTOs.HeartbeatRequest req) {
-        validateToken(token);
+    public JetsonDTOs.CommandResponse reportHeartbeat(String userId, JetsonDTOs.HeartbeatRequest req) {
         JetsonDeviceState state = findOrCreate(userId);
         state.setHeartbeatStatus(req.state());
         state.setMessage(trimMessage(req.message()));
@@ -122,18 +114,6 @@ public class JetsonService {
             return JetsonMobileStatus.ON;
         }
         return JetsonMobileStatus.OFF;
-    }
-
-    private void validateToken(String token) {
-        if (jetsonToken == null || jetsonToken.isBlank() || "change-me".equals(jetsonToken)) {
-            throw new BadCredentialsException("jetson token is not configured");
-        }
-        if (token == null || !MessageDigest.isEqual(
-                token.getBytes(StandardCharsets.UTF_8),
-                jetsonToken.getBytes(StandardCharsets.UTF_8)
-        )) {
-            throw new BadCredentialsException("invalid jetson token");
-        }
     }
 
     private String trimMessage(String message) {

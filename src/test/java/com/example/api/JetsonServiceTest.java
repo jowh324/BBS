@@ -12,14 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +32,6 @@ class JetsonServiceTest {
     @BeforeEach
     void setUp() {
         jetsonService = new JetsonService(repository);
-        ReflectionTestUtils.setField(jetsonService, "jetsonToken", "test-token");
         ReflectionTestUtils.setField(jetsonService, "disconnectSeconds", 30L);
     }
 
@@ -78,11 +76,20 @@ class JetsonServiceTest {
     }
 
     @Test
-    void heartbeatRequiresJetsonToken() {
-        assertThatThrownBy(() -> jetsonService.reportHeartbeat(
+    void heartbeatStoresStateWithUserIdOnly() {
+        JetsonDeviceState state = new JetsonDeviceState();
+        state.setUserId("user-1");
+        state.setTargetPower(JetsonPowerTarget.ON);
+        when(repository.findById("user-1")).thenReturn(Optional.of(state));
+        when(repository.save(any(JetsonDeviceState.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        JetsonDTOs.CommandResponse response = jetsonService.reportHeartbeat(
                 "user-1",
-                "wrong-token",
-                new JetsonDTOs.HeartbeatRequest(JetsonHeartbeatStatus.ON, null)
-        )).isInstanceOf(BadCredentialsException.class);
+                new JetsonDTOs.HeartbeatRequest(JetsonHeartbeatStatus.RUNNING, "ok")
+        );
+
+        assertThat(state.getHeartbeatStatus()).isEqualTo(JetsonHeartbeatStatus.RUNNING);
+        assertThat(state.getLastHeartbeatAt()).isNotNull();
+        assertThat(response.shouldRun()).isTrue();
     }
 }

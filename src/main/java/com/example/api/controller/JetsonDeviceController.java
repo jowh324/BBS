@@ -18,18 +18,16 @@ public class JetsonDeviceController {
 
     @GetMapping("/command")
     public ResponseEntity<JetsonDTOs.CommandResponse> deviceCommand(
-            @RequestHeader("X-Jetson-User-Id") String userId,
-            @RequestHeader("X-Jetson-Token") String token
+            @RequestHeader("userid") String userId
     ) {
-        return ResponseEntity.ok(jetsonService.getCommand(userId, token));
+        return ResponseEntity.ok(jetsonService.getCommand(userId));
     }
 
     @PostMapping("/heartbeat")
     public ResponseEntity<JetsonDTOs.CommandResponse> deviceHeartbeat(
-            @RequestHeader("X-Jetson-User-Id") String userId,
-            @RequestHeader("X-Jetson-Token") String token,
+            @RequestHeader("userid") String userId,
             @Valid @RequestBody JetsonDTOs.HeartbeatRequest req
     ) {
-        return ResponseEntity.ok(jetsonService.reportHeartbeat(userId, token, req));
+        return ResponseEntity.ok(jetsonService.reportHeartbeat(userId, req));
     }
 }

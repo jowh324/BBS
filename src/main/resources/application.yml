@@ -20,7 +20,6 @@ server:
 
 app:
   jetson:
-    token: ${JETSON_TOKEN:change-me}
     disconnect-seconds: ${JETSON_DISCONNECT_SECONDS:30}
   s3:
     bucket: koreatech-bbs-s3-bucket
