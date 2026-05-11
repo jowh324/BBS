@@ -19,13 +19,13 @@ import java.time.Instant;
 public class JetsonService {
 
     private static final String DEFAULT_DEVICE_ID = "default";
-    private static final long DEFAULT_DISCONNECT_SECONDS = 30;
+    private static final long DEFAULT_DISCONNECT_SECONDS = 15;
     private static final long MAX_DISCONNECT_SECONDS = 300;
     private static final long ALLOWED_CLOCK_SKEW_SECONDS = 5;
 
     private final JetsonDeviceStateRepository jetsonDeviceStateRepository;
 
-    @Value("${app.jetson.disconnect-seconds:30}")
+    @Value("${app.jetson.disconnect-seconds:15}")
     private long disconnectSeconds;
 
     @Transactional(readOnly = true)

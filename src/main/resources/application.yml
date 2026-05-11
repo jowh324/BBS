@@ -20,7 +20,7 @@ server:
 
 app:
   jetson:
-    disconnect-seconds: ${JETSON_DISCONNECT_SECONDS:30}
+    disconnect-seconds: ${JETSON_DISCONNECT_SECONDS:15}
   s3:
     bucket: koreatech-bbs-s3-bucket
     region: ap-northeast-2
