@@ -8,6 +8,7 @@ import com.example.api.Security.JwtAccessDeniedHandler;
 import com.example.api.Security.JwtAuthenticationEntryPoint;
 import com.example.api.Security.SecurityConfig;
 import com.example.api.controller.VideoController;
+import com.example.api.video.VideoRiskStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,7 +23,9 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,7 +53,25 @@ class VideoInitSecurityTest {
 
         mockMvc.perform(post("/api/videos/init")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"contentType\":\"video/mp4\"}"))
+                .content("{\"contentType\":\"video/mp4\"}"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void initEndpointAcceptsStatusAliasAsRiskStatus() throws Exception {
+        var auth = new UsernamePasswordAuthenticationToken("testuser", null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(videoService.initUpload(eq("testuser"), any(VideoDTOs.InitRequest.class)))
+                .thenReturn(new VideoDTOs.InitResponse("vid-1", "videos/testuser/vid-1.mp4", "https://s3.example.com/upload", 600));
+
+        mockMvc.perform(post("/api/videos/init")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"contentType\":\"video/mp4\",\"status\":\"COVERED\"}"))
+                .andExpect(status().isOk());
+
+        var captor = org.mockito.ArgumentCaptor.forClass(VideoDTOs.InitRequest.class);
+        verify(videoService).initUpload(eq("testuser"), captor.capture());
+        assertThat(captor.getValue().riskStatus()).isEqualTo(VideoRiskStatus.COVERED);
     }
 }

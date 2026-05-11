@@ -1,6 +1,7 @@
 package com.example.api.DTO;
 
 import com.example.api.video.VideoRiskStatus;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.Instant;
@@ -11,6 +12,7 @@ public class VideoDTOs {
             @NotBlank String contentType,
             String fileExt,
             String title,
+            @JsonAlias({"status", "risk_status"})
             VideoRiskStatus riskStatus
     ) {}
 
@@ -23,6 +25,7 @@ public class VideoDTOs {
 
     public record CompleteRequest(
             Long sizeBytes,
+            @JsonAlias({"status", "risk_status"})
             VideoRiskStatus riskStatus
     ) {}
 
