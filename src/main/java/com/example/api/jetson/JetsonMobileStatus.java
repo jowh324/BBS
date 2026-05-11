@@ -2,7 +2,10 @@ package com.example.api.jetson;
 
 public enum JetsonMobileStatus {
     DISCONNECTED,
-    OFF,
+    STARTING,
     ON,
+    RUNNING,
+    STOPPING,
+    OFF,
     ERROR
 }

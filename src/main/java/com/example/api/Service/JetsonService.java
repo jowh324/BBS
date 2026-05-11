@@ -124,15 +124,7 @@ public class JetsonService {
         }
 
         JetsonHeartbeatStatus heartbeatStatus = state.getHeartbeatStatus();
-        if (heartbeatStatus == JetsonHeartbeatStatus.ERROR) {
-            return JetsonMobileStatus.ERROR;
-        }
-        if (heartbeatStatus == JetsonHeartbeatStatus.STARTING ||
-                heartbeatStatus == JetsonHeartbeatStatus.ON ||
-                heartbeatStatus == JetsonHeartbeatStatus.RUNNING) {
-            return JetsonMobileStatus.ON;
-        }
-        return JetsonMobileStatus.OFF;
+        return JetsonMobileStatus.valueOf(heartbeatStatus.name());
     }
 
     private long effectiveDisconnectSeconds() {

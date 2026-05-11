@@ -80,7 +80,7 @@ class JetsonServiceTest {
     }
 
     @Test
-    void mobileStatusMapsStartingAndRunningToOn() {
+    void mobileStatusUsesHeartbeatStatusAsIs() {
         JetsonDeviceState state = new JetsonDeviceState();
         state.setUserId("default");
         state.setHeartbeatStatus(JetsonHeartbeatStatus.STARTING);
@@ -89,7 +89,7 @@ class JetsonServiceTest {
 
         JetsonDTOs.MobileStatusResponse response = jetsonService.getMobileStatus("ignored-user");
 
-        assertThat(response.status()).isEqualTo(JetsonMobileStatus.ON);
+        assertThat(response.status()).isEqualTo(JetsonMobileStatus.STARTING);
     }
 
     @Test
