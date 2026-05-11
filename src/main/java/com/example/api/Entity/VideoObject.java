@@ -1,5 +1,6 @@
 package com.example.api.Entity;
 
+import com.example.api.video.VideoRiskStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,10 @@ public class VideoObject {
 
     @Column(length = 200)
     private String title;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private VideoRiskStatus riskStatus;
 
     @Column(nullable = false)
     private Instant createdAt;

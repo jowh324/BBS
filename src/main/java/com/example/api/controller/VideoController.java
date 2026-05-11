@@ -37,7 +37,7 @@ public class VideoController {
     @PostMapping("/{videoId}/complete")
     public ResponseEntity<Void> complete(@PathVariable String videoId,
                                          @RequestBody(required = false) VideoDTOs.CompleteRequest req) {
-        videoService.completeUpload(userId(), videoId, req == null ? new VideoDTOs.CompleteRequest(null) : req);
+        videoService.completeUpload(userId(), videoId, req == null ? new VideoDTOs.CompleteRequest(null, null) : req);
         return ResponseEntity.ok().build();
     }
 

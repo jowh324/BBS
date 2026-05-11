@@ -1,5 +1,6 @@
 package com.example.api.DTO;
 
+import com.example.api.video.VideoRiskStatus;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.Instant;
@@ -7,9 +8,10 @@ import java.time.Instant;
 public class VideoDTOs {
 
     public record InitRequest(
-            @NotBlank String contentType,   // "video/mp4"
-            String fileExt,                 // "mp4" (옵션)
-            String title                    // 영상 제목 (옵션, 미입력 시 업로드 시각으로 자동 설정)
+            @NotBlank String contentType,
+            String fileExt,
+            String title,
+            VideoRiskStatus riskStatus
     ) {}
 
     public record InitResponse(
@@ -20,7 +22,8 @@ public class VideoDTOs {
     ) {}
 
     public record CompleteRequest(
-            Long sizeBytes
+            Long sizeBytes,
+            VideoRiskStatus riskStatus
     ) {}
 
     public record DownloadUrlResponse(
@@ -34,6 +37,7 @@ public class VideoDTOs {
             String videoId,
             String title,
             String status,
+            VideoRiskStatus riskStatus,
             Long sizeBytes,
             Instant createdAt
     ) {}

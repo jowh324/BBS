@@ -51,6 +51,7 @@ public class VideoService {
         v.setContentType(req.contentType());
         v.setStatus("INIT");
         v.setTitle(title);
+        v.setRiskStatus(req.riskStatus());
         v.setCreatedAt(now);
         v.setUpdatedAt(now);
         videoRepository.save(v);
@@ -80,6 +81,9 @@ public class VideoService {
 
         v.setStatus("UPLOADED");
         v.setSizeBytes(req.sizeBytes());
+        if (req.riskStatus() != null) {
+            v.setRiskStatus(req.riskStatus());
+        }
         v.setUpdatedAt(Instant.now());
         videoRepository.save(v);
     }
@@ -116,6 +120,7 @@ public class VideoService {
                         v.getId(),
                         v.getTitle(),
                         v.getStatus(),
+                        v.getRiskStatus(),
                         v.getSizeBytes(),
                         v.getCreatedAt()
                 ))
