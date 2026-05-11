@@ -54,6 +54,7 @@ public class KinesisStreamService {
                                 GetHlsStreamingSessionUrlRequest.builder()
                                         .streamName(streamName)
                                         .playbackMode(HLSPlaybackMode.LIVE)
+                                        .maxMediaPlaylistFragmentResults(3L)
                                         .expires(3600)
                                         .build()
                         );
