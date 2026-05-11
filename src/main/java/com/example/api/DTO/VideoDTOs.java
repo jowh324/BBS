@@ -35,10 +35,7 @@ public class VideoDTOs {
 
     public record VideoListItem(
             String videoId,
-            String title,
-            String status,
             VideoRiskStatus riskStatus,
-            Long sizeBytes,
             Instant createdAt
     ) {}
 }

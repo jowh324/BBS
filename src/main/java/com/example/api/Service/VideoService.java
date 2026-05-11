@@ -118,10 +118,7 @@ public class VideoService {
         return videoRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(v -> new VideoDTOs.VideoListItem(
                         v.getId(),
-                        v.getTitle(),
-                        v.getStatus(),
                         v.getRiskStatus(),
-                        v.getSizeBytes(),
                         v.getCreatedAt()
                 ))
                 .toList();
