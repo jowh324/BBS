@@ -21,6 +21,14 @@ public class JetsonDTOs {
 
     public record LogRequest(
             @NotBlank
+            @Size(max = 80)
+            String domain,
+
+            @NotBlank
+            @Size(max = 30)
+            String level,
+
+            @NotBlank
             @Size(max = 2000)
             String message
     ) {
@@ -28,6 +36,8 @@ public class JetsonDTOs {
 
     public record LogResponse(
             String logId,
+            String domain,
+            String level,
             String message,
             Instant createdAt
     ) {

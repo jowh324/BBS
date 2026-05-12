@@ -17,6 +17,12 @@ public class JetsonLog {
     @Column(length = 36)
     private String id;
 
+    @Column(nullable = false, length = 80)
+    private String domain;
+
+    @Column(nullable = false, length = 30)
+    private String level;
+
     @Column(nullable = false, length = 2000)
     private String message;
 

@@ -26,6 +26,8 @@ public class JetsonLogService {
     public JetsonDTOs.LogResponse appendLog(JetsonDTOs.LogRequest req) {
         JetsonLog log = new JetsonLog();
         log.setId(UUID.randomUUID().toString());
+        log.setDomain(req.domain().trim());
+        log.setLevel(req.level().trim());
         log.setMessage(req.message().trim());
         log.setCreatedAt(Instant.now());
         jetsonLogRepository.save(log);
@@ -62,6 +64,8 @@ public class JetsonLogService {
     private JetsonDTOs.LogResponse toResponse(JetsonLog log) {
         return new JetsonDTOs.LogResponse(
                 log.getId(),
+                log.getDomain(),
+                log.getLevel(),
                 log.getMessage(),
                 log.getCreatedAt()
         );
