@@ -61,6 +61,7 @@ public class JetsonService {
                 DEFAULT_DEVICE_ID,
                 state.getTargetPower(),
                 state.getTargetPower() == JetsonPowerTarget.ON,
+                state.getFcmToken(),
                 state.getLastCommandAt(),
                 Instant.now()
         );
@@ -78,9 +79,18 @@ public class JetsonService {
                 DEFAULT_DEVICE_ID,
                 state.getTargetPower(),
                 state.getTargetPower() == JetsonPowerTarget.ON,
+                state.getFcmToken(),
                 state.getLastCommandAt(),
                 Instant.now()
         );
+    }
+
+    @Transactional
+    public JetsonDTOs.FcmTokenResponse updateFcmToken(JetsonDTOs.FcmTokenRequest req) {
+        JetsonDeviceState state = findOrCreate();
+        state.setFcmToken(normalizeFcmToken(req.fcmToken()));
+        jetsonDeviceStateRepository.save(state);
+        return new JetsonDTOs.FcmTokenResponse(state.getFcmToken());
     }
 
     private JetsonDeviceState findOrCreate() {
@@ -140,5 +150,12 @@ public class JetsonService {
         }
         String trimmed = message.trim();
         return trimmed.length() > 500 ? trimmed.substring(0, 500) : trimmed;
+    }
+
+    private String normalizeFcmToken(String fcmToken) {
+        if (fcmToken == null || fcmToken.isBlank()) {
+            return null;
+        }
+        return fcmToken.trim();
     }
 }

@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/login", "/auth/signup", "/auth/refresh").permitAll()
                 .requestMatchers("/auth/logout", "/auth/me", "/auth/me/password", "/auth/checklogin").authenticated()
 
+                .requestMatchers("/api/fcm/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/jetson/logs").permitAll()
                 .requestMatchers("/api/jetson/device/**").permitAll()
                 .requestMatchers("/api/jetson/**").authenticated()

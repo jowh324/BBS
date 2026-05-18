@@ -28,6 +28,9 @@ public class JetsonDeviceState {
     @Column(length = 500)
     private String message;
 
+    @Column(length = 2048)
+    private String fcmToken;
+
     private Instant lastHeartbeatAt;
 
     private Instant lastCommandAt;

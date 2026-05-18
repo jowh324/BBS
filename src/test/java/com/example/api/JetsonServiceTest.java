@@ -111,6 +111,7 @@ class JetsonServiceTest {
         JetsonDeviceState state = new JetsonDeviceState();
         state.setUserId("default");
         state.setTargetPower(JetsonPowerTarget.ON);
+        state.setFcmToken("fcm-token-1");
         when(repository.findById("default")).thenReturn(Optional.of(state));
         when(repository.save(any(JetsonDeviceState.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -123,5 +124,21 @@ class JetsonServiceTest {
         assertThat(state.getHeartbeatStatus()).isEqualTo(JetsonHeartbeatStatus.RUNNING);
         assertThat(state.getLastHeartbeatAt()).isNotNull();
         assertThat(response.shouldRun()).isTrue();
+        assertThat(response.fcmToken()).isEqualTo("fcm-token-1");
+    }
+
+    @Test
+    void updateFcmTokenStoresLatestTokenForCommandPolling() {
+        JetsonDeviceState state = new JetsonDeviceState();
+        state.setUserId("default");
+        state.setTargetPower(JetsonPowerTarget.OFF);
+        when(repository.findById("default")).thenReturn(Optional.of(state));
+
+        JetsonDTOs.FcmTokenResponse tokenResponse =
+                jetsonService.updateFcmToken(new JetsonDTOs.FcmTokenRequest(" latest-fcm-token "));
+        JetsonDTOs.CommandResponse commandResponse = jetsonService.getCommand("ignored-user");
+
+        assertThat(tokenResponse.fcmToken()).isEqualTo("latest-fcm-token");
+        assertThat(commandResponse.fcmToken()).isEqualTo("latest-fcm-token");
     }
 }

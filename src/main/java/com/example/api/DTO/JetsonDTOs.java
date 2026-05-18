@@ -43,6 +43,17 @@ public class JetsonDTOs {
     ) {
     }
 
+    public record FcmTokenRequest(
+            @Size(max = 2048)
+            String fcmToken
+    ) {
+    }
+
+    public record FcmTokenResponse(
+            String fcmToken
+    ) {
+    }
+
     public record MobileStatusResponse(
             String userId,
             JetsonMobileStatus status,
@@ -58,6 +69,7 @@ public class JetsonDTOs {
             String userId,
             JetsonPowerTarget targetPower,
             boolean shouldRun,
+            String fcmToken,
             Instant commandUpdatedAt,
             Instant serverTime
     ) {
